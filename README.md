@@ -2,7 +2,7 @@
 
 Komplette Anleitung zur Installation von Anubis als Bot-Schutz für dienste mit Nginx Proxy Manager.
 
-Credits Anubis https://anubis.techaro.lol/$0
+Credits Anubis https://anubis.techaro.lol
 
 ## Voraussetzungen
 
