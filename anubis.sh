@@ -277,50 +277,7 @@ configure_firewall() {
     fi
 }
 
-generate_nginx_config() {
-    log_info "Generiere Nginx-Konfiguration..."
-    
-    cat > "/tmp/nginx_${SERVICE_NAME}_config.txt" << EOF
-server {
-    listen 80;
-    server_name ${DOMAIN};
-    return 301 https://\$server_name\$request_uri;
-}
 
-server {
-    listen 443 ssl http2;
-    server_name ${DOMAIN};
-    
-    ssl_certificate /path/to/your/cert.pem;
-    ssl_certificate_key /path/to/your/key.pem;
-    
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-    ssl_prefer_server_ciphers on;
-    
-    client_max_body_size 100M;
-    
-    location / {
-        proxy_pass http://127.0.0.1:${ANUBIS_PORT};
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header X-Forwarded-Host \$host;
-        
-        proxy_read_timeout 300;
-        proxy_connect_timeout 60;
-        proxy_send_timeout 300;
-        
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-EOF
-
-    log_success "Nginx-Konfiguration erstellt: /tmp/nginx_${SERVICE_NAME}_config.txt"
-}
 
 run_tests() {
     log_info "Führe Tests durch..."
