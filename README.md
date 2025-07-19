@@ -77,7 +77,7 @@ anubis-gitea metrics        # Metriken anzeigen
 - **Domain Names:** `git.example.com`
 - **Scheme:** `http`
 - **Forward Hostname/IP:** `GITEA_SERVER_IP`
-- **Forward Port:** `8923` (Anubis-Port, **NICHT** 3000!)
+- **Forward Port:** `8900` (Anubis-Port, **NICHT** 3000!)
 - **Block Common Exploits:** ✅ An
 - **Websockets Support:** ✅ An
 
@@ -169,7 +169,7 @@ anubis-gitea test
 ### Port-Konflikte
 ```bash
 # Verwendete Ports prüfen
-sudo ss -tlnp | grep :8923
+sudo ss -tlnp | grep :8900
 sudo ss -tlnp | grep :3000
 ```
 
@@ -177,11 +177,11 @@ sudo ss -tlnp | grep :3000
 ```bash
 # Firewall prüfen
 sudo ufw status
-sudo ufw allow from NPM_SERVER_IP to any port 8923
+sudo ufw allow from NPM_SERVER_IP to any port 8900
 
 # Anubis bindet auf 0.0.0.0?
 grep BIND /etc/anubis/gitea.env
-# Sollte sein: BIND=0.0.0.0:8923
+# Sollte sein: BIND=0.0.0.0:8900
 ```
 
 ## 11. Wartung
