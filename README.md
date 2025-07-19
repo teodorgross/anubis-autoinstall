@@ -15,7 +15,7 @@ Credits Anubis https://anubis.techaro.lol
 
 ```bash
 # Script herunterladen
-wget https://git.decentral.icu/teodorgross/anubis-autoinstall/raw/branch/main/anubis.sh$0
+wget https://git.decentral.icu/teodorgross/anubis-autoinstall/raw/branch/main/anubis-setup.sh
 chmod +x anubis-setup.sh
 
 # Als root ausführen
