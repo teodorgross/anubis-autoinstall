@@ -372,10 +372,8 @@ show_summary() {
     echo "  anubis-${SERVICE_NAME} metrics   # Metriken anzeigen"
     echo
     echo "Nächste Schritte:"
-    echo "1. Nginx/Proxy konfigurieren (siehe /tmp/nginx_${SERVICE_NAME}_config.txt)"
-    echo "2. SSL-Zertifikat einrichten"
-    echo "3. DNS auf diesen Server zeigen lassen"
-    echo "4. Mit 'anubis-${SERVICE_NAME} test' testen"
+    echo "1. DNS auf diesen Server zeigen lassen"
+    echo "2. Mit 'anubis-${SERVICE_NAME} test' testen"
     echo
     echo "Service läuft auf: http://localhost:${ANUBIS_PORT}"
     echo "Metrics verfügbar: http://localhost:${METRICS_PORT}/metrics"
@@ -399,7 +397,6 @@ main() {
     create_config_files
     start_service
     configure_firewall
-    generate_nginx_config
     run_tests
     create_management_functions
     show_summary
