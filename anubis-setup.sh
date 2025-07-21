@@ -25,7 +25,7 @@ log_error() {
 
 check_root() {
     if [[ $EUID -ne 0 ]]; then
-        log_error "Dieses Script muss als root ausgeführt werden!"
+        log_error "This script must be run as root!"
         exit 1
     fi
 }
@@ -33,12 +33,12 @@ check_root() {
 detect_os() {
     if [ -f /etc/debian_version ]; then
         OS="debian"
-        log_info "Debian/Ubuntu System erkannt"
+        log_info "Debian/Ubuntu system detected"
     elif [ -f /etc/redhat-release ]; then
         OS="redhat"
-        log_info "Red Hat/CentOS/Fedora System erkannt"
+        log_info "Red Hat/CentOS/Fedora system detected"
     else
-        log_error "Nicht unterstütztes Betriebssystem!"
+        log_error "Unsupported operating system!"
         exit 1
     fi
 }
@@ -46,7 +46,7 @@ detect_os() {
 validate_service_name() {
     local service="$1"
     if [[ ! "$service" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-        log_error "Service-Name darf nur Buchstaben, Zahlen, Unterstriche und Bindestriche enthalten!"
+        log_error "Service name may only contain letters, numbers, underscores and hyphens!"
         return 1
     fi
     return 0
@@ -55,7 +55,7 @@ validate_service_name() {
 validate_port() {
     local port="$1"
     if [[ ! "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
-        log_error "Port muss eine Zahl zwischen 1 und 65535 sein!"
+        log_error "Port must be a number between 1 and 65535!"
         return 1
     fi
     return 0
@@ -64,7 +64,7 @@ validate_port() {
 validate_domain() {
     local domain="$1"
     if [[ ! "$domain" =~ ^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$ ]]; then
-        log_error "Ungültiges Domain-Format!"
+        log_error "Invalid domain format!"
         return 1
     fi
     return 0
@@ -73,7 +73,7 @@ validate_domain() {
 validate_email() {
     local email="$1"
     if [[ ! "$email" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-        log_error "Ungültige E-Mail-Adresse!"
+        log_error "Invalid email address!"
         return 1
     fi
     return 0
@@ -87,7 +87,7 @@ get_input() {
     while true; do
         read -p "$prompt: " value
         if [ -z "$value" ]; then
-            log_error "Eingabe darf nicht leer sein!"
+            log_error "Input cannot be empty!"
             continue
         fi
         
@@ -105,7 +105,7 @@ find_free_port() {
     while ss -tlnp | grep -q ":$port "; do
         ((port++))
         if [ $port -gt 65535 ]; then
-            log_error "Kein freier Port gefunden!"
+            log_error "No free port found!"
             exit 1
         fi
     done
@@ -114,7 +114,7 @@ find_free_port() {
 }
 
 install_anubis_repo() {
-    log_info "Installiere Anubis Repository..."
+    log_info "Installing Anubis repository..."
     
     case $OS in
         "debian")
@@ -137,89 +137,89 @@ install_anubis_repo() {
     esac
     
     if ! id "anubis" &>/dev/null; then
-        log_info "Erstelle anubis-User..."
+        log_info "Creating anubis user..."
         useradd --system --no-create-home --shell /bin/false anubis
-        log_success "Anubis-User erstellt"
+        log_success "Anubis user created"
     else
-        log_info "Anubis-User bereits vorhanden"
+        log_info "Anubis user already exists"
     fi
     
-    log_success "Anubis erfolgreich installiert!"
+    log_success "Anubis successfully installed!"
 }
 
 collect_configuration() {
-    log_info "Sammle Konfigurationsdaten..."
+    log_info "Collecting configuration data..."
     echo
     
-    SERVICE_NAME=$(get_input "Service-Name (z.B. gitea, nextcloud, webapp)" validate_service_name)
-    TARGET_PORT=$(get_input "Port des zu schützenden Service" validate_port)
-    DOMAIN=$(get_input "Domain (z.B. git.example.com)" validate_domain)
-    WEBMASTER_EMAIL=$(get_input "Webmaster E-Mail" validate_email)
+    SERVICE_NAME=$(get_input "Service name (e.g. gitea, nextcloud, webapp)" validate_service_name)
+    TARGET_PORT=$(get_input "Port of service to protect" validate_port)
+    DOMAIN=$(get_input "Domain (e.g. git.example.com)" validate_domain)
+    WEBMASTER_EMAIL=$(get_input "Webmaster email" validate_email)
     
     ANUBIS_PORT=$(find_free_port 8900)
-    log_info "Verwende Port $ANUBIS_PORT für Anubis"
+    log_info "Using port $ANUBIS_PORT for Anubis"
     
     METRICS_PORT=$(find_free_port 9090)
-    log_info "Verwende Port $METRICS_PORT für Metrics"
+    log_info "Using port $METRICS_PORT for Metrics"
     
-    echo "Schwierigkeitsgrad wählen:"
-    echo "1) Niedrig (2) - Für schwache Clients"
-    echo "2) Mittel (4) - Standard"
-    echo "3) Hoch (6) - Für starke Protection"
+    echo "Choose difficulty level:"
+    echo "1) Low (2) - For weak clients"
+    echo "2) Medium (4) - Default"
+    echo "3) High (6) - For strong protection"
     while true; do
-        read -p "Wähle (1-3): " difficulty_choice
+        read -p "Choose (1-3): " difficulty_choice
         case $difficulty_choice in
             1) DIFFICULTY=2; break;;
             2) DIFFICULTY=4; break;;
             3) DIFFICULTY=6; break;;
-            *) log_error "Bitte 1, 2 oder 3 wählen!";;
+            *) log_error "Please choose 1, 2 or 3!";;
         esac
     done
     
     while true; do
-        read -p "Läuft der Service über HTTPS? (y/n): " ssl_choice
+        read -p "Does the service run over HTTPS? (y/n): " ssl_choice
         case $ssl_choice in
             [Yy]*) COOKIE_SECURE="true"; break;;
             [Nn]*) COOKIE_SECURE="false"; break;;
-            *) log_error "Bitte y oder n eingeben!";;
+            *) log_error "Please enter y or n!";;
         esac
     done
     
     while true; do
-        read -p "Automatische robots.txt servieren? (y/n): " robots_choice
+        read -p "Serve automatic robots.txt? (y/n): " robots_choice
         case $robots_choice in
             [Yy]*) SERVE_ROBOTS="true"; break;;
             [Nn]*) SERVE_ROBOTS="false"; break;;
-            *) log_error "Bitte y oder n eingeben!";;
+            *) log_error "Please enter y or n!";;
         esac
     done
     
     BASE_DOMAIN=$(echo "$DOMAIN" | sed 's/^[^.]*\.//')
     
     echo
-    log_info "Konfiguration:"
+    log_info "Configuration:"
     echo "  Service: $SERVICE_NAME"
     echo "  Domain: $DOMAIN"
     echo "  Target Port: $TARGET_PORT"
     echo "  Anubis Port: $ANUBIS_PORT"
     echo "  Metrics Port: $METRICS_PORT"
-    echo "  Schwierigkeit: $DIFFICULTY"
+    echo "  Difficulty: $DIFFICULTY"
     echo "  SSL: $COOKIE_SECURE"
     echo "  Robots.txt: $SERVE_ROBOTS"
     echo
     
     while true; do
-        read -p "Konfiguration korrekt? (y/n): " confirm
+        read -p "Configuration correct? (y/n): " confirm
         case $confirm in
             [Yy]*) break;;
-            [Nn]*) log_info "Script beenden..."; exit 0;;
-            *) log_error "Bitte y oder n eingeben!";;
+            [Nn]*) log_info "Exiting script..."; exit 0;;
+            *) log_error "Please enter y or n!";;
         esac
     done
 }
 
 create_config_files() {
-    log_info "Erstelle Konfigurationsdateien..."
+    log_info "Creating configuration files..."
     
     mkdir -p /etc/anubis
     
@@ -242,11 +242,11 @@ EOF
     chown anubis:anubis "/etc/anubis/${SERVICE_NAME}.env"
     chown anubis:anubis "/etc/anubis/${SERVICE_NAME}.botPolicies.yaml"
     
-    log_success "Konfigurationsdateien erstellt!"
+    log_success "Configuration files created!"
 }
 
 start_service() {
-    log_info "Starte Anubis Service..."
+    log_info "Starting Anubis service..."
     
     systemctl enable anubis@${SERVICE_NAME}.service
     systemctl start anubis@${SERVICE_NAME}.service
@@ -254,56 +254,56 @@ start_service() {
     sleep 2
     
     if systemctl is-active --quiet anubis@${SERVICE_NAME}.service; then
-        log_success "Anubis Service läuft!"
+        log_success "Anubis service is running!"
     else
-        log_error "Service konnte nicht gestartet werden!"
+        log_error "Service could not be started!"
         systemctl status anubis@${SERVICE_NAME}.service
         exit 1
     fi
 }
 
 configure_firewall() {
-    log_info "Konfiguriere Firewall..."
+    log_info "Configuring firewall..."
     
     if command -v ufw >/dev/null 2>&1; then
         ufw allow $ANUBIS_PORT/tcp comment "Anubis ${SERVICE_NAME}"
-        log_success "UFW Regel hinzugefügt"
+        log_success "UFW rule added"
     fi
     
     if command -v firewall-cmd >/dev/null 2>&1; then
         firewall-cmd --permanent --add-port=${ANUBIS_PORT}/tcp
         firewall-cmd --reload
-        log_success "Firewalld Regel hinzugefügt"
+        log_success "Firewalld rule added"
     fi
 }
 
 
 
 run_tests() {
-    log_info "Führe Tests durch..."
+    log_info "Running tests..."
     
     if ss -tlnp | grep -q ":${ANUBIS_PORT} "; then
-        log_success "Anubis läuft auf Port ${ANUBIS_PORT}"
+        log_success "Anubis is running on port ${ANUBIS_PORT}"
     else
-        log_error "Anubis läuft nicht auf Port ${ANUBIS_PORT}!"
+        log_error "Anubis is not running on port ${ANUBIS_PORT}!"
         return 1
     fi
     
     if curl -s http://localhost:${METRICS_PORT}/metrics >/dev/null; then
-        log_success "Metrics verfügbar auf Port ${METRICS_PORT}"
+        log_success "Metrics available on port ${METRICS_PORT}"
     else
-        log_warning "Metrics nicht erreichbar"
+        log_warning "Metrics not reachable"
     fi
     
     if curl -s -o /dev/null -w "%{http_code}" http://localhost:${ANUBIS_PORT} | grep -q "200\|301\|302"; then
-        log_success "Anubis antwortet korrekt"
+        log_success "Anubis responds correctly"
     else
-        log_warning "Anubis Response ungewöhnlich"
+        log_warning "Anubis response unusual"
     fi
 }
 
 create_management_functions() {
-    log_info "Erstelle Management-Script..."
+    log_info "Creating management script..."
     
     cat > "/usr/local/bin/anubis-${SERVICE_NAME}" << EOF
 #!/bin/bash
@@ -344,14 +344,14 @@ esac
 EOF
 
     chmod +x "/usr/local/bin/anubis-${SERVICE_NAME}"
-    log_success "Management-Script erstellt: anubis-${SERVICE_NAME}"
+    log_success "Management script created: anubis-${SERVICE_NAME}"
 }
 
 show_summary() {
-    log_success "Installation abgeschlossen!"
+    log_success "Installation completed!"
     echo
     echo "=================================="
-    echo "  ANUBIS SETUP ZUSAMMENFASSUNG"
+    echo "  ANUBIS SETUP SUMMARY"
     echo "=================================="
     echo "Service: $SERVICE_NAME"
     echo "Domain: $DOMAIN"
@@ -359,24 +359,24 @@ show_summary() {
     echo "Metrics Port: $METRICS_PORT"
     echo "Target Service: http://127.0.0.1:$TARGET_PORT"
     echo
-    echo "Konfigurationsdateien:"
+    echo "Configuration files:"
     echo "  - /etc/anubis/${SERVICE_NAME}.env"
     echo "  - /etc/anubis/${SERVICE_NAME}.botPolicies.yaml"
     echo
-    echo "Management-Befehle:"
+    echo "Management commands:"
     echo "  anubis-${SERVICE_NAME} start|stop|restart|status"
-    echo "  anubis-${SERVICE_NAME} logs      # Live Logs"
-    echo "  anubis-${SERVICE_NAME} config    # Konfiguration bearbeiten"
-    echo "  anubis-${SERVICE_NAME} policies  # Bot-Policies bearbeiten"
-    echo "  anubis-${SERVICE_NAME} test      # Schnelltest"
-    echo "  anubis-${SERVICE_NAME} metrics   # Metriken anzeigen"
+    echo "  anubis-${SERVICE_NAME} logs      # Live logs"
+    echo "  anubis-${SERVICE_NAME} config    # Edit configuration"
+    echo "  anubis-${SERVICE_NAME} policies  # Edit bot policies"
+    echo "  anubis-${SERVICE_NAME} test      # Quick test"
+    echo "  anubis-${SERVICE_NAME} metrics   # Show metrics"
     echo
-    echo "Nächste Schritte:"
-    echo "1. DNS auf diesen Server zeigen lassen"
-    echo "2. Mit 'anubis-${SERVICE_NAME} test' testen"
+    echo "Next steps:"
+    echo "1. Point DNS to this server"
+    echo "2. Test with 'anubis-${SERVICE_NAME} test'"
     echo
-    echo "Service läuft auf: http://localhost:${ANUBIS_PORT}"
-    echo "Metrics verfügbar: http://localhost:${METRICS_PORT}/metrics"
+    echo "Service running on: http://localhost:${ANUBIS_PORT}"
+    echo "Metrics available: http://localhost:${METRICS_PORT}/metrics"
     echo "=================================="
 }
 
@@ -385,8 +385,8 @@ main() {
     echo "=================================="
     echo "  ANUBIS UNIVERSAL SETUP SCRIPT"
     echo "=================================="
-    echo "Automatische Installation und Konfiguration"
-    echo "von Anubis für beliebige Services"
+    echo "Automatic installation and configuration"
+    echo "of Anubis for arbitrary services"
     echo "=================================="
     echo
     
