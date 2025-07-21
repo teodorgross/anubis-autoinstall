@@ -1,92 +1,92 @@
-# Anubis für Gitea - Setup Guide
+# Anubis for Gitea - Setup Guide
 
-Komplette Anleitung zur Installation von Anubis als Bot-Schutz für dienste mit Nginx Proxy Manager.
+Complete guide for installing Anubis as bot protection for services with Nginx Proxy Manager.
 
 Credits Anubis https://anubis.techaro.lol
 
-## Voraussetzungen
+## Prerequisites
 
-- **Gitea Server** mit laufendem Gitea auf Port 3000
-- **Nginx Proxy Manager** für SSL und Domain-Routing
-- **Root-Zugriff** auf den Gitea-Server
-- **Domain** die auf NPM zeigt (z.B. `git.example.com`)
+- **Gitea Server** with running Gitea on port 3000
+- **Nginx Proxy Manager** for SSL and domain routing
+- **Root access** to the Gitea server
+- **Domain** pointing to NPM (e.g., `git.example.com`)
 
-## 1. Script herunterladen und ausführen
+## 1. Download and Execute Script
 
 ```bash
-# Script herunterladen
+# Download script
 wget https://git.decentral.icu/teodorgross/anubis-autoinstall/raw/branch/main/anubis-setup.sh
 chmod +x anubis-setup.sh
 
-# Als root ausführen
+# Execute as root
 sudo ./anubis-setup.sh
 ```
 
-## 2. Interaktive Konfiguration
+## 2. Interactive Configuration
 
-Das Script fragt nach folgenden Informationen:
+The script asks for the following information:
 
 ```
-Service-Name: gitea
-Port des zu schützenden Service: 3000
+Service name: gitea
+Port of service to protect: 3000
 Domain: git.example.com
-Webmaster E-Mail: admin@example.com
-Schwierigkeitsgrad: 2 (Mittel - Standard)
+Webmaster email: admin@example.com
+Difficulty level: 2 (Medium - Default)
 HTTPS: y
-Automatische robots.txt: y
+Automatic robots.txt: y
 ```
 
-## 3. Automatische Installation
+## 3. Automatic Installation
 
-Das Script führt automatisch folgende Schritte aus:
+The script automatically performs the following steps:
 
-- ✅ **Anubis Repository** installieren
-- ✅ **Anubis-User** erstellen 
-- ✅ **Freie Ports** finden (meist 8923 für Anubis, 9090 für Metrics)
-- ✅ **Konfigurationsdateien** erstellen
-- ✅ **Service starten** und aktivieren
-- ✅ **Firewall-Regeln** hinzufügen
-- ✅ **Management-Script** erstellen
+- ✅ **Install Anubis repository**
+- ✅ **Create Anubis user** 
+- ✅ **Find free ports** (usually 8923 for Anubis, 9090 for Metrics)
+- ✅ **Create configuration files**
+- ✅ **Start and enable service**
+- ✅ **Add firewall rules**
+- ✅ **Create management script**
 
-## 4. Generierte Konfiguration
+## 4. Generated Configuration
 
-Nach der Installation findest du:
+After installation, you'll find:
 
-### Konfigurationsdateien
+### Configuration Files
 ```
-/etc/anubis/gitea.env              # Hauptkonfiguration
-/etc/anubis/gitea.botPolicies.yaml # Bot-Erkennungsregeln
+/etc/anubis/gitea.env              # Main configuration
+/etc/anubis/gitea.botPolicies.yaml # Bot detection rules
 ```
 
-### Management-Script
+### Management Script
 ```bash
-anubis-gitea start          # Service starten
-anubis-gitea stop           # Service stoppen
-anubis-gitea restart        # Service neustarten
-anubis-gitea status         # Status anzeigen
-anubis-gitea logs           # Live Logs anzeigen
-anubis-gitea test           # Schnelltest
-anubis-gitea config         # Konfiguration bearbeiten
-anubis-gitea policies       # Bot-Policies bearbeiten
-anubis-gitea metrics        # Metriken anzeigen
+anubis-gitea start          # Start service
+anubis-gitea stop           # Stop service
+anubis-gitea restart        # Restart service
+anubis-gitea status         # Show status
+anubis-gitea logs           # Show live logs
+anubis-gitea test           # Quick test
+anubis-gitea config         # Edit configuration
+anubis-gitea policies       # Edit bot policies
+anubis-gitea metrics        # Show metrics
 ```
 
-## 5. Nginx Proxy Manager konfigurieren
+## 5. Configure Nginx Proxy Manager
 
 ### Domain Setup in NPM:
 - **Domain Names:** `git.example.com`
 - **Scheme:** `http`
 - **Forward Hostname/IP:** `GITEA_SERVER_IP`
-- **Forward Port:** `8900` (Anubis-Port, **NICHT** 3000!)
-- **Block Common Exploits:** ✅ An
-- **Websockets Support:** ✅ An
+- **Forward Port:** `8900` (Anubis port, **NOT** 3000!)
+- **Block Common Exploits:** ✅ On
+- **Websockets Support:** ✅ On
 
 ### SSL Configuration:
 - **SSL Certificate:** Request a new SSL Certificate
-- **Force SSL:** ✅ An
-- **HTTP/2 Support:** ✅ An
+- **Force SSL:** ✅ On
+- **HTTP/2 Support:** ✅ On
 
-## 6. Architektur
+## 6. Architecture
 
 ```
 Internet → NPM (SSL) → Anubis (8923) → Gitea (3000)
@@ -94,62 +94,62 @@ Internet → NPM (SSL) → Anubis (8923) → Gitea (3000)
 
 ## 7. Testing
 
-### Lokaler Test
+### Local Test
 ```bash
-# Gitea direkt testen
+# Test Gitea directly
 curl -I http://localhost:3000
 
-# Anubis testen
+# Test Anubis
 anubis-gitea test
 
-# Service-Status
+# Service status
 anubis-gitea status
 ```
 
-### Externer Test
+### External Test
 ```bash
-# Von außen testen
+# Test from outside
 curl -I https://git.example.com
 ```
 
-## 8. Logs und Monitoring
+## 8. Logs and Monitoring
 
-### Live Logs verfolgen
+### Follow Live Logs
 ```bash
 anubis-gitea logs
 ```
 
-### Metriken anzeigen
+### Show Metrics
 ```bash
 anubis-gitea metrics
 ```
 
-### Service-Status
+### Service Status
 ```bash
 anubis-gitea status
 ```
 
-## 9. Konfiguration anpassen
+## 9. Adjust Configuration
 
-### Schwierigkeit ändern
+### Change Difficulty
 ```bash
 anubis-gitea config
-# DIFFICULTY=2  (leicht)
-# DIFFICULTY=4  (mittel) 
-# DIFFICULTY=6  (schwer)
+# DIFFICULTY=2  (easy)
+# DIFFICULTY=4  (medium) 
+# DIFFICULTY=6  (hard)
 anubis-gitea restart
 ```
 
-### Bot-Policies anpassen
+### Adjust Bot Policies
 ```bash
 anubis-gitea policies
-# YAML-Datei bearbeiten
+# Edit YAML file
 anubis-gitea restart
 ```
 
 ## 10. Troubleshooting
 
-### Service läuft nicht
+### Service Not Running
 ```bash
 anubis-gitea status
 anubis-gitea logs
@@ -157,83 +157,81 @@ anubis-gitea logs
 
 ### 502 Bad Gateway
 ```bash
-# Gitea Status prüfen
+# Check Gitea status
 systemctl status gitea
 curl -I http://localhost:3000
 
-# Anubis Status prüfen
+# Check Anubis status
 anubis-gitea status
 anubis-gitea test
 ```
 
-### Port-Konflikte
+### Port Conflicts
 ```bash
-# Verwendete Ports prüfen
+# Check used ports
 sudo ss -tlnp | grep :8900
 sudo ss -tlnp | grep :3000
 ```
 
-### NPM kann nicht connecten
+### NPM Cannot Connect
 ```bash
-# Firewall prüfen
+# Check firewall
 sudo ufw status
 sudo ufw allow from NPM_SERVER_IP to any port 8900
 
-# Anubis bindet auf 0.0.0.0?
+# Does Anubis bind to 0.0.0.0?
 grep BIND /etc/anubis/gitea.env
-# Sollte sein: BIND=0.0.0.0:8900
+# Should be: BIND=0.0.0.0:8900
 ```
 
-## 11. Wartung
+## 11. Maintenance
 
-### Service-Updates
+### Service Updates
 ```bash
 sudo apt update
 sudo apt upgrade anubis
 anubis-gitea restart
 ```
 
-### Log-Rotation
-Logs werden automatisch von systemd verwaltet.
+### Log Rotation
+Logs are automatically managed by systemd.
 
-### Backup der Konfiguration
+### Configuration Backup
 ```bash
 sudo cp /etc/anubis/gitea.* /backup/location/
 ```
 
-## 12. Deinstallation
+## 12. Uninstallation
 
 ```bash
-# Service stoppen und deaktivieren
+# Stop and disable service
 anubis-gitea stop
 sudo systemctl disable anubis@gitea.service
 
-# Konfigurationsdateien entfernen
+# Remove configuration files
 sudo rm -f /etc/anubis/gitea.*
 sudo rm -f /usr/local/bin/anubis-gitea
 
-# Anubis komplett entfernen
+# Remove Anubis completely
 sudo apt remove anubis
 ```
 
 ## Features
 
-✅ **Automatische Bot-Erkennung** mit KI-Schutz  
-✅ **Proof-of-Work Challenge** für verdächtige Clients  
-✅ **Keine Auswirkung** auf normale Benutzer  
-✅ **Skalierbar** für mehrere Services  
-✅ **Einfaches Management** mit integrierten Tools  
-✅ **Vollständige SSL-Unterstützung** über NPM  
-✅ **Live-Monitoring** und Metriken  
+✅ **Automatic bot detection** with AI protection  
+✅ **Proof-of-Work challenge** for suspicious clients  
+✅ **No impact** on normal users  
+✅ **Scalable** for multiple services  
+✅ **Easy management** with integrated tools  
+✅ **Full SSL support** via NPM  
+✅ **Live monitoring** and metrics  
 
 ## Support
 
-Bei Problemen:
-1. **Logs checken:** `anubis-gitea logs`
-2. **Status prüfen:** `anubis-gitea status`
-3. **Test ausführen:** `anubis-gitea test`
-4. **Konfiguration validieren:** `anubis-gitea config`
+For issues:
+1. **Check logs:** `anubis-gitea logs`
+2. **Check status:** `anubis-gitea status`
+3. **Run test:** `anubis-gitea test`
+4. **Validate configuration:** `anubis-gitea config`
 
 ---
-
-
