@@ -194,7 +194,7 @@ collect_configuration() {
         esac
     done
     
-    BASE_DOMAIN=$(echo "$DOMAIN" | sed 's/^[^.]*\.//')
+    BASE_DOMAIN="$DOMAIN"
     
     echo
     log_info "Configuration:"
