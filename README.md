@@ -14,8 +14,11 @@ Credits Anubis https://anubis.techaro.lol
 ## 1. Download and Execute Script
 
 ```bash
-# Download script
+# Download script (Gitea Mirror)
 wget https://git.decentral.icu/t30d0r/anubis-autoinstall/raw/branch/main/anubis-setup.sh
+# OR
+# Download script (Github Mirror)
+wget https://github.com/the-real-t30d0r/anubis-autoinstall/raw/branch/main/anubis-setup.sh
 chmod +x anubis-setup.sh
 
 # Execute as root
